@@ -5,7 +5,7 @@ import openai
 import os
 
 app = FastAPI()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv(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)
 
 @app.post("/process-pdf/")
 async def process_pdf(file: UploadFile = File(...)):
