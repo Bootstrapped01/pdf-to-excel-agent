@@ -22,7 +22,8 @@ async def process_pdf(file: UploadFile = File(...)):
             "role": "user",
             "content": f"Extract a structured table from this construction scope document:\n{text}\nFields: item, quantity, unit."
         }]
-
+    )
+    
     structured_data = eval(response['choices'][0]['message']['content'])  # safer in final version
     df = pd.DataFrame(structured_data)
 
