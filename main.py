@@ -6,7 +6,8 @@ import os
 import json
 
 app = FastAPI()
-openai.api_key = os.getenv("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")
+
+client = openai.OpenAI(api_key=os.getenv("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"))
 
 @app.post("/process-pdf/")
 async def process_pdf(
@@ -21,7 +22,7 @@ async def process_pdf(
         text = "\n".join(page.extract_text() for page in pdf.pages if page.extract_text())
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{
                 "role": "user",
@@ -37,11 +38,11 @@ async def process_pdf(
         return {"error": f"OpenAI API request failed: {e}"}
 
     try:
-        structured_data = json.loads(response['choices'][0]['message']['content'])
+        structured_data = json.loads(response.choices[0].message.content)
     except Exception as e:
         return {
             "error": f"Failed to parse GPT response: {e}",
-            "raw": response['choices'][0]['message']['content']
+            "raw": response.choices[0].message.content
         }
 
     df = pd.DataFrame(structured_data)
