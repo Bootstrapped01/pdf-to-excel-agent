@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 import pdfplumber, pandas as pd, tempfile
 import openai
 import os
+import json
 
 app = FastAPI()
 openai.api_key = os.getenv("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")
@@ -20,12 +21,21 @@ async def process_pdf(file: UploadFile = File(...)):
         model="gpt-4",
         messages=[{
             "role": "user",
-            "content": f"Extract a structured table from this construction scope document:\n{text}\nFields: item, quantity, unit."
+            "content": (
+                f"Extract a JSON array of items from this construction scope document:\n{text}\n"
+                "Format like this: [{\"item\": \"Curb\", \"quantity\": 100, \"unit\": \"LF\"}, ...]"
+            )
         }]
-
     )
-   
-    structured_data = eval(response['choices'][0]['message']['content'])  # safer in final version
+
+    try:
+        structured_data = json.loads(response['choices'][0]['message']['content'])
+    except Exception as e:
+        return {
+            "error": f"Failed to parse GPT response: {e}",
+            "raw": response['choices'][0]['message']['content']
+        }
+
     df = pd.DataFrame(structured_data)
 
     output = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
