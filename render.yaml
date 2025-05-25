@@ -6,4 +6,5 @@ services:
     startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: OPENAI_API_KEY
-        value: your-openai-api-key-here
+      - import os
+openai.api_key = os.getenv("OPENAI_API_KEY")
